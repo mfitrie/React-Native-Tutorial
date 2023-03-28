@@ -9,12 +9,49 @@ import {
 } from "react-native";
 
 import styles from "./popularjobs.style";
+import { COLORS, SIZES } from "../../../constants";
+import PopularJobCard from '../../common/cards/popular/PopularJobCard';
+import useFetch from '../../../hook/useFetch';
 
 const Popularjobs = () => {
+  const router = useRouter();
+  const { data, isLoading, error } = useFetch("search", {
+    query: "React Developer",
+    num_pages: "1",
+  });
+
+  // console.log(data);
+  const [selectedJob, setSelectedJob] = useState();
 
   return (
-    <View>
-      <Text>Popularjobs</Text>
+    <View style={ styles.container }>
+      <View style={ styles.header }>
+        <Text style={ styles.headerTitle }>Popular Jobs</Text>
+        <TouchableOpacity>
+          <Text style={ styles.headerBtn }>Show all</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={ styles.container }>
+        { isLoading ? (
+          <ActivityIndicator size="large" colors={ COLORS.primary }/>
+        ) : error ? (
+          <Text>Something went wrong</Text>
+        ) : (
+          <FlatList
+            data={data}
+            renderItem={({item})=>(
+              <PopularJobCard
+                item={item}
+                selectedJob={selectedJob}
+              />
+            )}
+            keyExtractor={item => item?.job_id}
+            contentContainerStyle={{ columnGap: SIZES.medium }}
+            horizontal
+          />
+        ) }
+      </View>
     </View>
   );
 };
